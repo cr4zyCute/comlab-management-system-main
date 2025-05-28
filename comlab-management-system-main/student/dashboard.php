@@ -43,85 +43,210 @@ $room_stats = $conn->query("SELECT r.room_number,
 
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Student Dashboard</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <style>
+        nav a span.material-icons {
+            margin-right: 12px;
+            font-size: 24px;
+            vertical-align: middle;
+        }
+
+        nav::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        nav::-webkit-scrollbar-thumb {
+            background-color: rgba(255, 255, 255, 0.3);
+            border-radius: 3px;
+        }
+
+        .sidebar {
+            transition: width 0.3s;
+        }
+    </style>
 </head>
 
-<body>
-    <h1>Welcome, <?= htmlspecialchars($user['full_name']) ?></h1>
-    <p><strong>Course:</strong> <?= htmlspecialchars($user['course']) ?> |
-        <strong>Year:</strong> <?= htmlspecialchars($user['year']) ?> |
-        <strong>Section:</strong> <?= htmlspecialchars($user['section']) ?>
-    </p>
+<body class="bg-gray-50 text-gray-900">
+    <div class="flex h-screen overflow-hidden">
+        <!-- Sidebar -->
+        <nav id="sidebar" class="sidebar w-64 bg-red-700 text-white p-6 flex flex-col overflow-y-auto shadow-lg">
+            <div class="flex items-center mb-8">
+                <h1 class="text-3xl font-extrabold tracking-wide">Student</h1>
+                <button id="toggleSidebar" class="ml-2 text-white focus:outline-none">
+                    <span class="material-icons">chevron_left</span>
+                </button>
+            </div>
 
-    <nav>
-        <ul>
-            <li><a href="dashboard.php">Dashboard</a></li>
-            <li><a href="select_pc.php">Select PC</a></li>
-            <li><a href="report_issue.php">Report Issue</a></li>
-            <li><a href="announcements.php">Announcements</a></li>
-            <li><a href="../login.php">Logout</a></li>
-        </ul>
-    </nav>
+            <p class="text-xs font-semibold uppercase mb-4 tracking-wide text-red-300">Menu</p>
 
-    <?php if ($current_pc): ?>
-        <div style="background: #e8f5e8; padding: 10px; border: 1px solid #4CAF50; margin: 10px 0;">
-            <h3>Currently Using PC</h3>
-            <p><strong>Room:</strong> <?= htmlspecialchars($current_pc['room_number']) ?> |
-                <strong>PC:</strong> <?= htmlspecialchars($current_pc['pc_number']) ?> |
-                <strong>Login Time:</strong> <?= htmlspecialchars($current_pc['login_time']) ?>
-            </p>
-            <a href="logout_pc.php" onclick="return confirm('Are you sure you want to logout from the PC?')">Logout from PC</a>
-        </div>
-    <?php endif; ?>
-
-    <h2>Computer Lab Status</h2>
-    <table border="1" cellpadding="5" cellspacing="0">
-        <thead>
-            <tr>
-                <th>Room</th>
-                <th>Total PCs</th>
-                <th>Available</th>
-                <th>Occupied</th>
-                <th>Action</th>
-            </tr>
-        </thead>
-        <tbody>
-            <?php while ($room = $room_stats->fetch_assoc()): ?>
-                <tr>
-                    <td>Room <?= htmlspecialchars($room['room_number']) ?></td>
-                    <td><?= $room['total_pcs'] ?></td>
-                    <td><?= $room['available_pcs'] ?></td>
-                    <td><?= $room['occupied_pcs'] ?></td>
-                    <td>
-                        <?php if ($room['available_pcs'] > 0 && !$current_pc): ?>
-                            <a href="select_pc.php?room=<?= $room['room_number'] ?>">Select PC</a>
-                        <?php elseif ($current_pc): ?>
-                            Currently Using PC
-                        <?php else: ?>
-                            No Available PCs
-                        <?php endif; ?>
-                    </td>
-                </tr>
-            <?php endwhile; ?>
-        </tbody>
-    </table>
-
-    <h2>Recent Announcements</h2>
-    <?php if ($announcements->num_rows > 0): ?>
-        <ul>
-            <?php while ($announcement = $announcements->fetch_assoc()): ?>
+            <ul class="flex-grow space-y-2">
                 <li>
-                    <strong><?= htmlspecialchars($announcement['title']) ?></strong>
-                    <em>(<?= $announcement['date_posted'] ?>)</em><br>
-                    <?= nl2br(htmlspecialchars($announcement['message'])) ?>
+                    <a href="dashboard.php" class="flex items-center p-3 rounded-lg bg-red-800 hover:bg-red-600 transition-colors duration-200">
+                        <span class="material-icons">dashboard</span>
+                        <span class="font-semibold text-lg">Dashboard</span>
+                    </a>
                 </li>
-            <?php endwhile; ?>
-        </ul>
-        <a href="announcements.php">View All Announcements</a>
-    <?php else: ?>
-        <p>No announcements available.</p>
-    <?php endif; ?>
+                <li>
+                    <a href="select_pc.php" class="flex items-center p-3 rounded-lg hover:bg-red-600 transition-colors duration-200">
+                        <span class="material-icons">desktop_windows</span>
+                        <span class="font-semibold text-lg">Select PC</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="report_issue.php" class="flex items-center p-3 rounded-lg hover:bg-red-600 transition-colors duration-200">
+                        <span class="material-icons">report_problem</span>
+                        <span class="font-semibold text-lg">Report Issue</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="announcements.php" class="flex items-center p-3 rounded-lg hover:bg-red-600 transition-colors duration-200">
+                        <span class="material-icons">announcement</span>
+                        <span class="font-semibold text-lg">Announcements</span>
+                    </a>
+                </li>
+            </ul>
 
+            <div class="mt-auto pt-6 border-t border-red-800">
+                <p class="text-xs font-semibold uppercase mb-4 tracking-wide text-red-300">Support</p>
+                <ul>
+                    <li>
+                        <a href="../logout.php" class="flex items-center p-3 rounded-lg hover:bg-red-600 transition-colors duration-200">
+                            <span class="material-icons">logout</span>
+                            <span class="font-semibold text-lg">Logout</span>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </nav>
+
+        <!-- Main Content -->
+        <main class="flex-grow p-6 md:p-10 overflow-y-auto">
+            <div class="mb-8">
+                <h2 class="text-4xl font-extrabold text-gray-800">Welcome, <?= htmlspecialchars($user['full_name']) ?></h2>
+                <p class="mt-2 text-gray-600">
+                    <span class="font-semibold">Course:</span> <?= htmlspecialchars($user['course']) ?> |
+                    <span class="font-semibold">Year:</span> <?= htmlspecialchars($user['year']) ?> |
+                    <span class="font-semibold">Section:</span> <?= htmlspecialchars($user['section']) ?>
+                </p>
+            </div>
+
+            <?php if ($current_pc): ?>
+                <div class="bg-green-50 border-l-4 border-green-500 p-4 mb-8 rounded-lg shadow-sm">
+                    <div class="flex items-center">
+                        <span class="material-icons text-green-500 mr-3">computer</span>
+                        <div>
+                            <h3 class="text-lg font-semibold text-green-800">Currently Using PC</h3>
+                            <p class="text-green-700">
+                                <span class="font-semibold">Room:</span> <?= htmlspecialchars($current_pc['room_number']) ?> |
+                                <span class="font-semibold">PC:</span> <?= htmlspecialchars($current_pc['pc_number']) ?> |
+                                <span class="font-semibold">Login Time:</span> <?= htmlspecialchars($current_pc['login_time']) ?>
+                            </p>
+                        </div>
+                    </div>
+                    <div class="mt-4">
+                        <a href="logout_pc.php" onclick="return confirm('Are you sure you want to logout from the PC?')"
+                            class="inline-flex items-center px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors duration-200">
+                            <span class="material-icons mr-2">logout</span>
+                            Logout from PC
+                        </a>
+                    </div>
+                </div>
+            <?php endif; ?>
+
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+                <!-- Computer Lab Status -->
+                <div class="bg-white rounded-lg shadow-lg overflow-hidden">
+                    <div class="p-6">
+                        <h3 class="text-xl font-semibold text-gray-800 mb-4">Computer Lab Status</h3>
+                        <div class="overflow-x-auto">
+                            <table class="min-w-full divide-y divide-gray-200">
+                                <thead class="bg-gray-50">
+                                    <tr>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Room</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Total PCs</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Available</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Occupied</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="bg-white divide-y divide-gray-200">
+                                    <?php while ($room = $room_stats->fetch_assoc()): ?>
+                                        <tr>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                                                Room <?= htmlspecialchars($room['room_number']) ?>
+                                            </td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                                <?= $room['total_pcs'] ?>
+                                            </td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                                <?= $room['available_pcs'] ?>
+                                            </td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                                <?= $room['occupied_pcs'] ?>
+                                            </td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                                <?php if ($room['available_pcs'] > 0 && !$current_pc): ?>
+                                                    <a href="select_pc.php?room=<?= $room['room_number'] ?>"
+                                                        class="text-red-600 hover:text-red-800 font-medium">
+                                                        Select PC
+                                                    </a>
+                                                <?php elseif ($current_pc): ?>
+                                                    <span class="text-gray-400">Currently Using PC</span>
+                                                <?php else: ?>
+                                                    <span class="text-gray-400">No Available PCs</span>
+                                                <?php endif; ?>
+                                            </td>
+                                        </tr>
+                                    <?php endwhile; ?>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Recent Announcements -->
+                <div class="bg-white rounded-lg shadow-lg overflow-hidden">
+                    <div class="p-6">
+                        <h3 class="text-xl font-semibold text-gray-800 mb-4">Recent Announcements</h3>
+                        <?php if ($announcements->num_rows > 0): ?>
+                            <div class="space-y-4">
+                                <?php while ($announcement = $announcements->fetch_assoc()): ?>
+                                    <div class="border-l-4 border-red-500 pl-4 py-2">
+                                        <h4 class="font-semibold text-gray-800"><?= htmlspecialchars($announcement['title']) ?></h4>
+                                        <p class="text-sm text-gray-500 mb-2"><?= $announcement['date_posted'] ?></p>
+                                        <p class="text-gray-600"><?= nl2br(htmlspecialchars($announcement['message'])) ?></p>
+                                    </div>
+                                <?php endwhile; ?>
+                            </div>
+                            <div class="mt-4">
+                                <a href="announcements.php" class="text-red-600 hover:text-red-800 font-medium inline-flex items-center">
+                                    <span class="material-icons mr-1">arrow_forward</span>
+                                    View All Announcements
+                                </a>
+                            </div>
+                        <?php else: ?>
+                            <p class="text-gray-500">No announcements available.</p>
+                        <?php endif; ?>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        const toggleButton = document.getElementById('toggleSidebar');
+        const sidebar = document.getElementById('sidebar');
+
+        toggleButton.addEventListener('click', () => {
+            sidebar.classList.toggle('w-64');
+            sidebar.classList.toggle('w-20');
+            const icon = toggleButton.querySelector('.material-icons');
+            icon.textContent = sidebar.classList.contains('w-64') ? 'chevron_left' : 'chevron_right';
+        });
+    </script>
 </body>
 
 </html>
